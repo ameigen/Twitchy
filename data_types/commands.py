@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from bot.bot import TwitchBot, VIP_COMMAND_DELAY, COMMAND_DELAY
+    from bot.bot import Twitchy, VIP_COMMAND_DELAY, COMMAND_DELAY
 
 import time
 import random
@@ -33,7 +33,7 @@ class Command:
 
 
 def on_invalid_command(
-        _bot: TwitchBot, message: twitch.chat.Message, *_args: Any, **_kwargs
+        _bot: Twitchy, message: twitch.chat.Message, *_args: Any, **_kwargs
 ) -> None:
     message.chat.send(
         f"@{message.user.display_name} that was an invalid command..."
@@ -41,7 +41,7 @@ def on_invalid_command(
 
 
 def on_help_command(
-        _bot: TwitchBot,
+        _bot: Twitchy,
         message: twitch.chat.Message,
         command: str,
         help_text: str,
@@ -52,7 +52,7 @@ def on_help_command(
 
 
 def on_delay_not_met(
-        _bot: TwitchBot,
+        _bot: Twitchy,
         message: twitch.chat.Message,
         user_command_delta: float,
         level: Level,
@@ -72,7 +72,7 @@ def on_delay_not_met(
 
 
 def on_message(
-        bot: TwitchBot, message: twitch.chat.Message, *_args: Any, **_kwargs: Any
+        bot: Twitchy, message: twitch.chat.Message, *_args: Any, **_kwargs: Any
 ) -> None:
     message.chat.send(
         f"@{message.user.display_name}, you have sent {bot.stats[message.user.display_name].messages_sent} messages."
@@ -80,19 +80,19 @@ def on_message(
 
 
 def on_set_vips(
-        bot: TwitchBot, _message: twitch.chat.Message, to_vip: List[str]
+        bot: Twitchy, _message: twitch.chat.Message, to_vip: List[str]
 ) -> None:
     _set_levels(bot, to_vip, Level.VIP)
 
 
 def on_set_mods(
-        bot: TwitchBot, _message: twitch.chat.Message, to_mod: List[str]
+        bot: Twitchy, _message: twitch.chat.Message, to_mod: List[str]
 ) -> None:
     _set_levels(bot, to_mod, Level.MOD)
 
 
 def on_roll(
-        _bot: TwitchBot, message: twitch.chat.Message, roll_string: List[str]
+        _bot: Twitchy, message: twitch.chat.Message, roll_string: List[str]
 ) -> None:
     unsplit_roll: str = roll_string[0] if roll_string else ""
     try:
@@ -107,17 +107,17 @@ def on_roll(
         )
 
 
-def on_first_sighting(bot: TwitchBot, message: twitch.chat.Message, *_, **__) -> None:
+def on_first_sighting(bot: Twitchy, message: twitch.chat.Message, *_, **__) -> None:
     delta: float = time.time() - bot.stats[message.user.display_name].first_sighting
     bot.send(f"@{message.user.display_name} you were first seen {_seconds_to_dhms(delta)} ago! WOW!")
 
 
-def on_who_am_i(bot: TwitchBot, message: twitch.chat.Message, *_, **__) -> None:
+def on_who_am_i(bot: Twitchy, message: twitch.chat.Message, *_, **__) -> None:
     who_am_i: PlayerStats = bot.stats[message.user.display_name].player_stats
     bot.send(f"@{message.user.display_name} {who_am_i.pretty()}")
 
 
-def on_reroll_me(bot: TwitchBot, message: twitch.chat.Message, *_, **__) -> None:
+def on_reroll_me(bot: Twitchy, message: twitch.chat.Message, *_, **__) -> None:
     delta: float = time.time() - bot.stats[message.user.display_name].last_reroll
     if delta > REROLL_DELAY:
         bot.reroll_user_stats(message.user.display_name)
@@ -134,7 +134,7 @@ def _roll_dice(sides: int, number: int) -> str:
     return roll_string
 
 
-def _set_levels(bot: TwitchBot, to_list: List[str], level: Level):
+def _set_levels(bot: Twitchy, to_list: List[str], level: Level):
     for user in to_list:
         if user not in bot.stats:
             bot.add_user(User(name=user, level=level))

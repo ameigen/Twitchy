@@ -3,7 +3,7 @@ import argparse
 import os
 from typing import List
 
-from bot.bot import TwitchBot
+from bot.bot import Twitchy
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
@@ -19,7 +19,7 @@ def main():
         username, channel, bot_name, oauth_token, client_id, client_secret = params
         logger.info("Using parameters from TWITCH_BOT environment variable")
     else:
-        parser = argparse.ArgumentParser(description="Initialize TwitchBot with command-line arguments.")
+        parser = argparse.ArgumentParser(description="Initialize Twitchy with command-line arguments.")
         parser.add_argument('username', type=str, help='Twitch username')
         parser.add_argument('channel', type=str, help='Twitch channel')
         parser.add_argument('bot_name', type=str, help='Bot name')
@@ -38,9 +38,9 @@ def main():
         )
         logger.info("Using parameters from command-line arguments")
 
-    logger.info("Starting TwitchBot")
+    logger.info("Starting Twitchy")
 
-    bot: TwitchBot = TwitchBot(
+    bot: Twitchy = Twitchy(
         username,
         f"#{channel}",
         bot_name,
@@ -49,7 +49,7 @@ def main():
         client_secret,
     )
 
-    logger.info("TwitchBot initialized")
+    logger.info("Twitchy initialized")
 
 
 if __name__ == "__main__":

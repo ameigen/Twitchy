@@ -26,7 +26,7 @@ from util.constants import SPLIT_COMMAND_NAME, SPLIT_COMMAND_ARGS, COMMAND_DELAY
     WRITE_DELAY_SECONDS, STATS_PATH
 
 
-class TwitchBot:
+class Twitchy:
     def __init__(
             self,
             owner: str,
