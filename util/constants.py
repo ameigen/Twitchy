@@ -1,0 +1,6 @@
+STATS_PATH: str = "statistics/stats.json"
+WRITE_DELAY_SECONDS: int = 10
+COMMAND_DELAY: int = 60
+VIP_COMMAND_DELAY: int = 30
+SPLIT_COMMAND_NAME: int = 0
+SPLIT_COMMAND_ARGS: int = 1
