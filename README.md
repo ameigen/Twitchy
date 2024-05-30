@@ -54,14 +54,12 @@ linting.
     pip install pre-commit
     ```
 
-2**Install the pre-commit hooks**:
+2. **Install the pre-commit hooks**:
+    ```sh
+    pre-commit install
+    ```
 
-```sh
-pre-commit install
-```
-
-3**Run the pre-commit hooks manually (optional)**:
-
-```sh
-pre-commit run --all-files
-```
+3. **Run the pre-commit hooks manually (optional)**:
+    ```sh
+    pre-commit run --all-files
+    ```
