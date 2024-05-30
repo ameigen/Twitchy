@@ -46,7 +46,7 @@ commands: Dict[str, Command] = {
     ),
     "!vote": Command("Votes for a poll choice!", "!vote [choice]", on_vote),
     "!current_poll": Command(
-        "Gets the current poll information!", "current_poll", on_current_poll
+        "Gets the current poll information!", "!current_poll", on_current_poll
     ),
 }
 
