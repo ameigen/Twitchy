@@ -1,9 +1,9 @@
 import time
 from dataclasses import dataclass, asdict
 from enum import Enum
-from typing import Dict, Any
+from typing import Dict, Any, ClassVar
 
-from .meta_game import PlayerStats
+from data_types.rpg.meta_game import PlayerStats
 
 
 class Level(str, Enum):
@@ -23,10 +23,17 @@ class User:
     Class representing the serializable data of a chat 'User'
     """
 
+    REROLL_DELAY: ClassVar[float] = 2.592e6
+    COMMAND_DELAY: ClassVar[int] = 60
+    VIP_COMMAND_DELAY: ClassVar[int] = 30
+    VOTE_DELAY: ClassVar[int] = 10000000
+
     name: str = "__default__"
     level: Level = Level.USER
     last_chat: float = time.time()
     last_command: float = 0
+    last_vote: float = 0
+    last_battle: float = 0
     messages_sent: int = 0
     first_sighting: int = time.time()
     last_reroll: float = 0
@@ -60,7 +67,6 @@ class User:
             level=Level(vals.get("level", "user")),
             last_chat=vals.get("last_chat", time.time()),
             messages_sent=vals.get("messages_sent", 0),
-            last_command=vals.get("last_command", time.time()),
             first_sighting=vals.get("first_sighting", time.time()),
             last_reroll=vals.get("last_reroll", 0),
             player_stats=PlayerStats.from_dict(

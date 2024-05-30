@@ -5,7 +5,7 @@ import logging
 import os
 from typing import List
 
-from .bot.bot import Twitchy
+from bot import Twitchy
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

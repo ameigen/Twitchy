@@ -95,5 +95,7 @@ class PollBotEvent(BotEvent):
             self._bot.send(
                 f"{self._title} - {winner[0].title()} has won with {winner[1]} votes!"
             )
+            for user in self._bot.stats.values():
+                user.last_vote = 0
             return self
         return None

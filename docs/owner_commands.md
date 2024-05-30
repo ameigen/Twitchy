@@ -46,5 +46,5 @@
 
 ## !current_poll
 **Description:** Gets the current poll information!
-**Usage:** `current_poll`
+**Usage:** `!current_poll`
 

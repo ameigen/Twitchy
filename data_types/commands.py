@@ -10,15 +10,13 @@ from typing import TYPE_CHECKING, Callable, Any, List, Optional
 
 import twitch
 
+from data_types.rpg.meta_game import PlayerStats
 from .events import PollBotEvent
-from .meta_game import PlayerStats
 from .user import Level
 from .user import User
 
 if TYPE_CHECKING:
     from bot.bot import Twitchy, VIP_COMMAND_DELAY, COMMAND_DELAY
-
-REROLL_DELAY: float = 2.592e6
 
 
 @dataclass
@@ -234,12 +232,12 @@ def on_reroll_me(bot: Twitchy, message: twitch.chat.Message, *_, **__) -> None:
 
     """
     delta: float = time.time() - bot.stats[message.user.display_name].last_reroll
-    if delta > REROLL_DELAY:
+    if delta > User.REROLL_DELAY:
         bot.reroll_user_stats(message.user.display_name)
     else:
         bot.send(
             f"@{message.user.display_name} you can't reroll your character "
-            f"yet! You have to wait {_seconds_to_dhms(REROLL_DELAY - delta)}"
+            f"yet! You have to wait {_seconds_to_dhms(User.REROLL_DELAY - delta)}"
         )
 
 
@@ -318,13 +316,13 @@ def on_create_poll(
 
 
 def on_vote(
-    bot: Twitchy, _message: twitch.chat.Message, args: List[str], *_, **__
+    bot: Twitchy, message: twitch.chat.Message, args: List[str], *_, **__
 ) -> None:
     """
 
     Args:
         bot:
-        _message:
+        message:
         args:
         *_:
         **__:
@@ -332,7 +330,12 @@ def on_vote(
     Returns:
 
     """
-    bot.update_poll(args[0])
+    user: User = bot.stats.get(message.user.display_name)
+    delta: float = time.time() - user.last_vote
+    if delta > User.VOTE_DELAY:
+        bot.update_poll(args[0])
+    else:
+        bot.send(f"@{message.user.display_name} you already voted!")
 
 
 def on_current_poll(bot: Twitchy, _message: twitch.chat.Message, *_, **__) -> None:

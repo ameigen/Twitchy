@@ -26,8 +26,6 @@ from data_types.user import Level
 from util.constants import (
     SPLIT_COMMAND_NAME,
     SPLIT_COMMAND_ARGS,
-    COMMAND_DELAY,
-    VIP_COMMAND_DELAY,
     WRITE_DELAY_SECONDS,
     STATS_PATH,
 )
@@ -154,7 +152,9 @@ class Twitchy:
         elif level == Level.MOD:
             command: Command = mod_commands.get(command_name, INVALID_COMMAND)
         else:
-            delay: float = VIP_COMMAND_DELAY if level == Level.VIP else COMMAND_DELAY
+            delay: float = (
+                User.VIP_COMMAND_DELAY if level == Level.VIP else User.COMMAND_DELAY
+            )
             if user_command_delta <= delay:
                 DELAY_NOT_MET_COMMAND.command(self, message, user_command_delta, level)
                 return

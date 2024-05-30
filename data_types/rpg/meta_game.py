@@ -1,9 +1,12 @@
 """ Handles classes and lookups for the 'RPG' chat metagame """
 
+import dataclasses
 import random
 from dataclasses import dataclass
-from typing import Dict, Tuple
 from enum import Enum
+from typing import Dict, Tuple, List
+
+from data_types.rpg.items import Weapon, Spell, Accessory, Armor
 
 
 class Species(str, Enum):
@@ -107,6 +110,10 @@ class PlayerStats:
     max_mana: int
     current_mana: int
     experience: int
+    weapon: Weapon = Weapon()
+    spell: Spell = Spell()
+    armor: Armor = Armor()
+    accessories: List[Accessory] = dataclasses.field(default_factory=lambda: [])
 
     @classmethod
     def new(cls) -> "PlayerStats":
