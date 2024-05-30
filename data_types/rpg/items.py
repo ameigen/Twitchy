@@ -6,6 +6,16 @@ from data_types.rpg.dice import Dice
 
 
 @dataclass
+class Attack:
+    """
+    Wrapper class for holding an attack's damage and description
+    """
+
+    damage: int
+    message: str
+
+
+@dataclass
 class AttackItem(ABC):
     """
     Abstract class for items used for attacking.

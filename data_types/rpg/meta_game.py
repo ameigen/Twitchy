@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Tuple, List
 
-from data_types.rpg.items import Weapon, Spell, Accessory, Armor
+from data_types.rpg.items import Weapon, Spell, Accessory, Armor, Attack
 
 
 class Species(str, Enum):
@@ -115,6 +115,30 @@ class PlayerStats:
     armor: Armor = Armor()
     accessories: List[Accessory] = dataclasses.field(default_factory=lambda: [])
 
+    def _calc_health(self) -> int:
+        """
+        Handles the calculation of current health based off of stats
+        Returns:
+            int current health
+        """
+
+    def _calc_mana(self) -> int:
+        """
+        Handles the calculation of current mana based off of stats
+        Returns:
+            int current mana
+        """
+
+    def _calc_damage_received(self, damage: int) -> int:
+        """
+        Handles calculating the damage received based off of currently equipped items.
+        Args:
+            damage: int damage received
+
+        Returns:
+            int normalized damage
+        """
+
     @classmethod
     def new(cls) -> "PlayerStats":
         """
@@ -203,4 +227,61 @@ class PlayerStats:
             f"INT:{self.intelligence} "
             f"WIS:{self.wisdom} "
             f"CHA:{self.charisma}"
+            f"Weapon:{self.weapon}"
+            f"Spell:{self.spell}"
+            f"Armor:{self.armor}"
+            f"Accessory:{self.accessories}"
+        )
+
+    def get_adjusted_stats(self) -> "PlayerStats":
+        """
+        Returns a temporary snapshot of the Player's current stats modified based off of
+        current equipment.
+        Returns:
+            PlayerStats object
+        """
+        temp_stats: PlayerStats = self
+
+        temp_stats.strength += temp_stats.armor.stats[0] + sum(
+            accessory.stats[0] for accessory in temp_stats.accessories
+        )
+        temp_stats.dexterity += temp_stats.armor.stats[1] + sum(
+            accessory.stats[1] for accessory in temp_stats.accessories
+        )
+        temp_stats.constitution += temp_stats.armor.stats[2] + sum(
+            accessory.stats[2] for accessory in temp_stats.accessories
+        )
+        temp_stats.intelligence += temp_stats.armor.stats[3] + sum(
+            accessory.stats[3] for accessory in temp_stats.accessories
+        )
+        temp_stats.wisdom += temp_stats.armor.stats[4] + sum(
+            accessory.stats[4] for accessory in temp_stats.accessories
+        )
+        temp_stats.charisma += temp_stats.armor.stats[5] + sum(
+            accessory.stats[5] for accessory in temp_stats.accessories
+        )
+
+        return temp_stats
+
+    def attack(self) -> Attack:
+        """
+        Generates an Attack object based off of the character's current Weapon
+        Returns:
+            Attack object
+        """
+        damage: int = self.weapon.damage.roll()
+        return Attack(
+            damage,
+            f" attacks with {self.weapon.name} for {damage}! '{self.weapon.description}'",
+        )
+
+    def cast(self) -> Attack:
+        """
+        Generates an Attack object based off of the character's current Spell
+        Returns:
+            Attack object
+        """
+        damage: int = self.spell.damage.roll()
+        return Attack(
+            damage, f" casts {self.spell.name} for {damage}! '{self.spell.description}'"
         )
