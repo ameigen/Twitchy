@@ -6,19 +6,17 @@ import logging
 import random
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable, Any, List
+from typing import TYPE_CHECKING, Callable, Any, List, Optional
 
 import twitch
 
+from .events import PollBotEvent
 from .meta_game import PlayerStats
 from .user import Level
 from .user import User
 
 if TYPE_CHECKING:
     from bot.bot import Twitchy, VIP_COMMAND_DELAY, COMMAND_DELAY
-else:
-    VIP_COMMAND_DELAY: float = 30
-    COMMAND_DELAY: float = 60
 
 REROLL_DELAY: float = 2.592e6
 
@@ -55,8 +53,7 @@ def on_invalid_command(
 def on_help_command(
     _bot: Twitchy,
     message: twitch.chat.Message,
-    command: str,
-    help_text: str,
+    command: Command,
 ) -> None:
     """
     Sends a chat message '@ing' the user with the help text of the requested command
@@ -64,13 +61,12 @@ def on_help_command(
         _bot: Unused
         message: Message class for the chat message
         command: Command for the help text to be created from
-        help_text: str help text
-
     Returns:
         None
     """
     message.chat.send(
-        f"Hey @{message.user.display_name} you can use {command} like this: {help_text}"
+        f"Hey @{message.user.display_name} here's your help:"
+        f" {command.description} - {command.example}"
     )
 
 
@@ -289,6 +285,71 @@ def on_get_bonks(bot: Twitchy, message: twitch.chat.Message, *_, **__) -> None:
         f"@{message.user.display_name} has been bonked "
         f"🔨{bot.stats[message.user.display_name].bonks}🔨 times!"
     )
+
+
+def on_create_poll(
+    bot: Twitchy, _message: twitch.chat.Message, args: List[str], *_, **__
+) -> None:
+    """
+
+    Args:
+        bot:
+        _message:
+        args:
+        *_:
+        **__:
+
+    Returns:
+
+    """
+    if len(args) >= 3:
+        try:
+            poll_name: str = args[0].replace("_", " ").title()
+            poll_choices: List[str] = args[1:-1]
+            poll_duration: int = int(args[-1])
+            poll: PollBotEvent = PollBotEvent(
+                bot, poll_name, poll_choices, poll_duration
+            )
+            bot.add_poll(poll)
+        except IndexError as e:
+            logging.error("Error creating poll event %s", e)
+    else:
+        bot.send("You might want to try making that poll again...")
+
+
+def on_vote(
+    bot: Twitchy, _message: twitch.chat.Message, args: List[str], *_, **__
+) -> None:
+    """
+
+    Args:
+        bot:
+        _message:
+        args:
+        *_:
+        **__:
+
+    Returns:
+
+    """
+    bot.update_poll(args[0])
+
+
+def on_current_poll(bot: Twitchy, _message: twitch.chat.Message, *_, **__) -> None:
+    """
+
+    Args:
+        bot:
+        _message:
+        *_:
+        **__:
+
+    Returns:
+
+    """
+    poll_event: Optional[PollBotEvent] = bot.get_current_poll_info()
+    if poll_event:
+        poll_event.current_status()
 
 
 def _roll_dice(sides: int, number: int) -> str:

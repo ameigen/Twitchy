@@ -28,3 +28,11 @@
 **Description:** How many times have you been bonked?
 **Usage:** `!bonked?`
 
+## !vote
+**Description:** Votes for a poll choice!
+**Usage:** `!vote [choice]`
+
+## !current_poll
+**Description:** Gets the current poll information!
+**Usage:** `current_poll`
+

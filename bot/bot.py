@@ -4,7 +4,7 @@ import os
 import time
 from datetime import timedelta
 from threading import Thread, Event, Lock
-from typing import Dict, List
+from typing import Dict, List, Optional, Union
 
 import twitch
 
@@ -21,6 +21,7 @@ from data_types import User
 from data_types.commands import (
     Command,
 )
+from data_types.events import PollBotEvent, BotEvent
 from data_types.user import Level
 from util.constants import (
     SPLIT_COMMAND_NAME,
@@ -60,13 +61,17 @@ class Twitchy:
         self._owner: str = owner
         self._stats: Dict[str, User] = {}
         self._bot.subscribe(self._handle_message)
+        self._queue: Dict[str, Union[BotEvent, PollBotEvent]] = {}
 
         self._file_writer: Thread = Thread(target=self._file_write_loop)
+        self._watch_thread: Thread = Thread(target=self._monitor_loop)
         self._file_mutex: Lock = Lock()
+        self._queue_mutex: Lock = Lock()
         self._end_event: Event = Event()
 
         self._load_stats()
         self._file_writer.start()
+        self._watch_thread.start()
 
     @property
     def stats(self) -> Dict[str, User]:
@@ -137,8 +142,7 @@ class Twitchy:
                 HELP_COMMAND.command(
                     self,
                     message,
-                    split_command[SPLIT_COMMAND_NAME],
-                    command_to_execute.description,
+                    command_to_execute,
                 )
             else:
                 command_to_execute.command(
@@ -191,6 +195,22 @@ class Twitchy:
                         key: str = list(user.keys())[0]
                         data[key] = user[key]
                     file.write(json.dumps(data, indent=4))
+
+    def _monitor_loop(self) -> None:
+        """
+        Function to be run in a thread, monitoring for something to happen.
+        Returns:
+            None
+        """
+        while not self._end_event.is_set():
+            time.sleep(1)
+            with self._queue_mutex:
+                to_clear: List[str] = []
+                for name, event in self._queue.items():
+                    event: Optional[BotEvent] = event.finish()
+                    if event:
+                        to_clear.append(name)
+                [self._queue.pop(name) for name in to_clear].clear()
 
     def _load_stats(self) -> None:
         """
@@ -261,3 +281,60 @@ class Twitchy:
         """
         logging.info("Sending message: %s", message)
         self._bot.send(message)
+
+    def add_poll(self, event: PollBotEvent) -> None:
+        """
+
+        Args:
+            event:
+
+        Returns:
+
+        """
+        if self.add_event("current_poll", event):
+            self.send(f"Created a new poll for: {event.title}")
+        else:
+            self.send("There is already a poll running!")
+
+    def add_event(self, name: str, event: BotEvent) -> bool:
+        """
+
+        Args:
+            name:
+            event:
+
+        Returns:
+
+        """
+
+        with self._queue_mutex:
+            try:
+                self._queue[name] = event
+                return True
+            except KeyError as e:
+                logging.error("Error inserting event: %s", e)
+                return False
+
+    def update_poll(self, choice: str) -> None:
+        """
+
+        Args:
+            choice:
+
+        Returns:
+
+        """
+        with self._queue_mutex:
+            try:
+                self._queue["current_poll"].vote(choice)
+            except KeyError as e:
+                self._bot.send(f"{choice} isn't in this poll...")
+                logging.error("Error getting current poll: %s", e)
+
+    def get_current_poll_info(self) -> Optional[PollBotEvent]:
+        """
+
+        Returns:
+
+        """
+        return self._queue.get("current_poll")

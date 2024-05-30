@@ -8,6 +8,10 @@
 **Description:** Sets user level to VIP.
 **Usage:** `!set_vips [username1] [username2] ...`
 
+## !start_poll
+**Description:** Starts a new poll
+**Usage:** `!start_poll [This_is_a_title] [choice1] [choice2] [choice3] ... [duration]`
+
 ## !messages
 **Description:** Returns how many messages a user has sent
 **Usage:** `!messages`
@@ -35,4 +39,12 @@
 ## !bonked?
 **Description:** How many times have you been bonked?
 **Usage:** `!bonked?`
+
+## !vote
+**Description:** Votes for a poll choice!
+**Usage:** `!vote [choice]`
+
+## !current_poll
+**Description:** Gets the current poll information!
+**Usage:** `current_poll`
 

@@ -15,6 +15,9 @@ from data_types.commands import (
     on_reroll_me,
     on_bonk,
     on_get_bonks,
+    on_create_poll,
+    on_vote,
+    on_current_poll,
 )
 
 INVALID_COMMAND: Command = Command("ERROR", "", on_invalid_command)
@@ -41,6 +44,10 @@ commands: Dict[str, Command] = {
     "!bonked?": Command(
         "How many times have you been bonked?", "!bonked?", on_get_bonks
     ),
+    "!vote": Command("Votes for a poll choice!", "!vote [choice]", on_vote),
+    "!current_poll": Command(
+        "Gets the current poll information!", "current_poll", on_current_poll
+    ),
 }
 
 mod_commands: Dict[str, Command] = {
@@ -48,7 +55,12 @@ mod_commands: Dict[str, Command] = {
         "Sets user level to VIP.",
         "!set_vips [username1] [username2] ...",
         on_set_vips,
-    )
+    ),
+    "!start_poll": Command(
+        "Starts a new poll",
+        "!start_poll [This_is_a_title] [choice1] [choice2] [choice3] ... [duration]",
+        on_create_poll,
+    ),
 }
 
 owner_commands: Dict[str, Command] = {
