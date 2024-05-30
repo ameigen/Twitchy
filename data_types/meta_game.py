@@ -161,7 +161,9 @@ class PlayerStats:
             intelligence=val.get(
                 "intelligence", random.randint(8, 18) + SPECIES_LOOKUP[species][3]
             ),
-            wisdom=val.get("wisdom", random.randint(8, 18) + SPECIES_LOOKUP[species][4]),
+            wisdom=val.get(
+                "wisdom", random.randint(8, 18) + SPECIES_LOOKUP[species][4]
+            ),
             charisma=val.get(
                 "charisma", random.randint(8, 18) + SPECIES_LOOKUP[species][5]
             ),

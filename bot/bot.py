@@ -1,12 +1,12 @@
+import json
 import logging
 import os
 import time
-import json
-import twitch
-
 from datetime import timedelta
 from threading import Thread, Event, Lock
 from typing import Dict, List
+
+import twitch
 
 from bot.commands import (
     owner_commands,
@@ -16,12 +16,12 @@ from bot.commands import (
     HELP_COMMAND,
     mod_commands,
 )
-from data_types import User
 from data_types import PlayerStats
-from data_types.user import Level
+from data_types import User
 from data_types.commands import (
     Command,
 )
+from data_types.user import Level
 from util.constants import (
     SPLIT_COMMAND_NAME,
     SPLIT_COMMAND_ARGS,
@@ -33,6 +33,10 @@ from util.constants import (
 
 
 class Twitchy:
+    """
+    Core class for the Twitchy bot
+    """
+
     def __init__(
         self,
         owner: str,
@@ -66,9 +70,23 @@ class Twitchy:
 
     @property
     def stats(self) -> Dict[str, User]:
+        """
+        Get the stats dict
+        Returns:
+            Dict[str, User]
+        """
         return self._stats
 
     def _handle_message(self, message: twitch.chat.Message) -> None:
+        """
+        Logic for handling any incoming messages. If a user has not been added to the stats
+        recording they will be added with default parameters.
+        Args:
+            message: Message that was received
+
+        Returns:
+            None
+        """
         username: str = message.user.display_name
 
         if username not in self._stats:
@@ -93,6 +111,17 @@ class Twitchy:
         split_command: List[str],
         level: Level,
     ) -> None:
+        """
+        Core logic for handling a '!command'
+        Args:
+            user: User that invoked the command
+            message: Message holding the command
+            split_command: List[str] of the command type and any subsequent args
+            level: Level of the command
+
+        Returns:
+            None
+        """
         if not split_command:
             return
 
@@ -102,7 +131,8 @@ class Twitchy:
         def execute_command(command_to_execute: Command) -> None:
             if (
                 len(split_command) > 1
-                and HELP_COMMAND.description in split_command[SPLIT_COMMAND_ARGS].upper()
+                and HELP_COMMAND.description
+                in split_command[SPLIT_COMMAND_ARGS].upper()
             ):
                 HELP_COMMAND.command(
                     self,
@@ -129,12 +159,26 @@ class Twitchy:
         execute_command(command)
 
     def _update_user(self, user: User) -> None:
+        """
+        Updates a provided User's stats
+        Args:
+            user: User to be updated
+
+        Returns:
+            None
+        """
         with self._file_mutex:
             user.last_chat = time.time()
             user.messages_sent += 1
             self._stats[user.name] = user
 
     def _file_write_loop(self) -> None:
+        """
+        Function to be run in a thread, writing the current user stats to file after
+        a certain sleep period.
+        Returns:
+            None
+        """
         while not self._end_event.is_set():
             time.sleep(WRITE_DELAY_SECONDS)
             with self._file_mutex:
@@ -149,6 +193,11 @@ class Twitchy:
                     file.write(json.dumps(data, indent=4))
 
     def _load_stats(self) -> None:
+        """
+        Opens 'stats,json' and loads user statistics data
+        Returns:
+            None
+        """
         stats: Dict[str, User] = {}
         if not os.path.exists(STATS_PATH):
             with open(STATS_PATH, "w+") as file:
@@ -163,22 +212,52 @@ class Twitchy:
         self._stats = stats
 
     def add_user(self, user: User) -> None:
+        """
+        Adds a new user to the stats dict
+        Args:
+            user: User to be added
+
+        Returns:
+            None
+        """
         logging.info("Adding user: %s", user.name)
         self._stats[user.name] = user
 
     def set_user_level(self, username: str, level: Level) -> None:
-        if (
-            self._stats[username].level != Level.MOD
-            and self._stats[username].level != Level.OWNER
-        ):
+        """
+        Sets a provided user's level to the provided level
+        Args:
+            username: str user to be changed
+            level: Level to be changed to
+
+        Returns:
+            None
+        """
+        if self._stats[username].level not in (Level.MOD, Level.OWNER):
             logging.info("Setting User: %s 's level to %s", username, level)
             self._stats[username].level = level
 
     def reroll_user_stats(self, username: str):
+        """
+        Generates a new metagame player profile
+        Args:
+            username: str name of the user
+
+        Returns:
+            None
+        """
         logging.info("Rerolling User: %s 's stats", username)
         self._stats[username].player_stats = PlayerStats.new()
         self._stats[username].last_reroll = time.time()
 
     def send(self, message: str) -> None:
+        """
+        Sends a provided message to the chat channel
+        Args:
+            message: str message to be sent
+
+        Returns:
+            None
+        """
         logging.info("Sending message: %s", message)
         self._bot.send(message)

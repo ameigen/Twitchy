@@ -10,6 +10,7 @@ class Level(str, Enum):
     """
     Enum representing the 'level' of different chatters.
     """
+
     OWNER = "owner"
     MOD = "mod"
     VIP = "vip"
@@ -21,6 +22,7 @@ class User:
     """
     Class representing the serializable data of a chat 'User'
     """
+
     name: str = "__default__"
     level: Level = Level.USER
     last_chat: float = time.time()

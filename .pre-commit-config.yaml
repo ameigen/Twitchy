@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        name: black
+        language_version: python3
+
+  - repo: https://github.com/pre-commit/mirrors-pylint
+    rev: v3.0.0a5
+    hooks:
+      - id: pylint
+        name: pylint
+        language_version: python3
+        args: [ "--disable=R0902, C0114, C0441, W1514, E0401, R0913, E0601" ]

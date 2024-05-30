@@ -35,7 +35,7 @@ class Command:
 
 
 def on_invalid_command(
-        _bot: Twitchy, message: twitch.chat.Message, *_args: Any, **_kwargs
+    _bot: Twitchy, message: twitch.chat.Message, *_args: Any, **_kwargs
 ) -> None:
     """
     Fallback function if the command definition is not found.
@@ -53,10 +53,10 @@ def on_invalid_command(
 
 
 def on_help_command(
-        _bot: Twitchy,
-        message: twitch.chat.Message,
-        command: str,
-        help_text: str,
+    _bot: Twitchy,
+    message: twitch.chat.Message,
+    command: str,
+    help_text: str,
 ) -> None:
     """
     Sends a chat message '@ing' the user with the help text of the requested command
@@ -75,12 +75,12 @@ def on_help_command(
 
 
 def on_delay_not_met(
-        _bot: Twitchy,
-        message: twitch.chat.Message,
-        user_command_delta: float,
-        level: Level,
-        *_args: Any,
-        **_kwargs,
+    _bot: Twitchy,
+    message: twitch.chat.Message,
+    user_command_delta: float,
+    level: Level,
+    *_args: Any,
+    **_kwargs,
 ) -> None:
     """
 
@@ -109,7 +109,7 @@ def on_delay_not_met(
 
 
 def on_message(
-        bot: Twitchy, message: twitch.chat.Message, *_args: Any, **_kwargs: Any
+    bot: Twitchy, message: twitch.chat.Message, *_args: Any, **_kwargs: Any
 ) -> None:
     """
 
@@ -156,7 +156,9 @@ def on_set_mods(bot: Twitchy, _message: twitch.chat.Message, to_mod: List[str]) 
     _set_levels(bot, to_mod, Level.MOD)
 
 
-def on_roll(_bot: Twitchy, message: twitch.chat.Message, roll_string: List[str]) -> None:
+def on_roll(
+    _bot: Twitchy, message: twitch.chat.Message, roll_string: List[str]
+) -> None:
     """
 
     Args:
@@ -174,14 +176,14 @@ def on_roll(_bot: Twitchy, message: twitch.chat.Message, roll_string: List[str])
         message.chat.send(
             f"@{message.user.display_name} rolled {unsplit_roll} for: {roll_string}"
         )
-    except IndexError as e:
-        logging.error("Error parsing roll command: %s", e)
+    except IndexError as error:
+        logging.error("Error parsing roll command: %s", error)
         message.chat.send(
             f"@{message.user.display_name} sorry that wasn't"
             f" a valid roll...{unsplit_roll}"
         )
-    except TypeError as e:
-        logging.error("Error parsing roll command: %s", e)
+    except TypeError as error:
+        logging.error("Error parsing roll command: %s", error)
         message.chat.send(
             f"@{message.user.display_name} sorry that wasn't"
             f" a valid roll...{unsplit_roll}"
@@ -246,7 +248,7 @@ def on_reroll_me(bot: Twitchy, message: twitch.chat.Message, *_, **__) -> None:
 
 
 def on_bonk(
-        bot: Twitchy, message: twitch.chat.Message, target: List[str], *_, **__
+    bot: Twitchy, message: twitch.chat.Message, target: List[str], *_, **__
 ) -> None:
     """
 

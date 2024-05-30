@@ -1,4 +1,5 @@
 """ Entrypoint for Twitchy """
+
 import argparse
 import logging
 import os

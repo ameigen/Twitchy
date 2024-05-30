@@ -38,7 +38,9 @@ commands: Dict[str, Command] = {
         on_reroll_me,
     ),
     "!bonk": Command("Bonks someone!", "!bonk [user]", on_bonk),
-    "!bonked?": Command("How many times have you been bonked?", "!bonked?", on_get_bonks),
+    "!bonked?": Command(
+        "How many times have you been bonked?", "!bonked?", on_get_bonks
+    ),
 }
 
 mod_commands: Dict[str, Command] = {
@@ -61,9 +63,17 @@ mod_commands.update(commands)
 owner_commands.update(mod_commands)
 
 
-def generate_markdown(dictionaries: Dict[str, Dict[str, Command]]):
+def generate_markdown(our_dicts: Dict[str, Dict[str, Command]]) -> None:
+    """
+    Creates a series of markdown files detailing the supported commands
+    Args:
+        our_dicts: Dict of Dicts
+
+    Returns:
+        None
+    """
     os.makedirs("docs", exist_ok=True)
-    for dict_name, command_dict in dictionaries.items():
+    for dict_name, command_dict in our_dicts.items():
         filename = f"docs/{dict_name}.md"
         with open(filename, "w") as file:
             file.write(f"# {dict_name.replace('_', ' ').title()}\n\n")
