@@ -22,19 +22,25 @@ from data_types.user import Level
 from data_types.commands import (
     Command,
 )
-from util.constants import SPLIT_COMMAND_NAME, SPLIT_COMMAND_ARGS, COMMAND_DELAY, VIP_COMMAND_DELAY, \
-    WRITE_DELAY_SECONDS, STATS_PATH
+from util.constants import (
+    SPLIT_COMMAND_NAME,
+    SPLIT_COMMAND_ARGS,
+    COMMAND_DELAY,
+    VIP_COMMAND_DELAY,
+    WRITE_DELAY_SECONDS,
+    STATS_PATH,
+)
 
 
 class Twitchy:
     def __init__(
-            self,
-            owner: str,
-            channel: str,
-            nickname: str,
-            oauth: str,
-            client_id: str,
-            client_secret: str,
+        self,
+        owner: str,
+        channel: str,
+        nickname: str,
+        oauth: str,
+        client_id: str,
+        client_secret: str,
     ) -> None:
         self._bot: twitch.Chat = twitch.Chat(
             channel=channel,
@@ -81,11 +87,11 @@ class Twitchy:
         self._update_user(user)
 
     def _handle_command(
-            self,
-            user: User,
-            message: twitch.chat.Message,
-            split_command: List[str],
-            level: Level,
+        self,
+        user: User,
+        message: twitch.chat.Message,
+        split_command: List[str],
+        level: Level,
     ) -> None:
         if not split_command:
             return
@@ -94,25 +100,29 @@ class Twitchy:
         command_name: str = split_command[SPLIT_COMMAND_NAME]
 
         def execute_command(command_to_execute: Command) -> None:
-            if len(split_command) > 1 and HELP_COMMAND.description in split_command[SPLIT_COMMAND_ARGS].upper():
+            if (
+                len(split_command) > 1
+                and HELP_COMMAND.description in split_command[SPLIT_COMMAND_ARGS].upper()
+            ):
                 HELP_COMMAND.command(
-                    self, message, split_command[SPLIT_COMMAND_NAME], command_to_execute.description
+                    self,
+                    message,
+                    split_command[SPLIT_COMMAND_NAME],
+                    command_to_execute.description,
                 )
             else:
-                command_to_execute.command(self, message, split_command[SPLIT_COMMAND_ARGS:])
+                command_to_execute.command(
+                    self, message, split_command[SPLIT_COMMAND_ARGS:]
+                )
 
         if level == Level.OWNER:
             command: Command = owner_commands.get(command_name, INVALID_COMMAND)
         elif level == Level.MOD:
             command: Command = mod_commands.get(command_name, INVALID_COMMAND)
         else:
-            delay: float = (
-                VIP_COMMAND_DELAY if level == Level.VIP else COMMAND_DELAY
-            )
+            delay: float = VIP_COMMAND_DELAY if level == Level.VIP else COMMAND_DELAY
             if user_command_delta <= delay:
-                DELAY_NOT_MET_COMMAND.command(
-                    self, message, user_command_delta, level
-                )
+                DELAY_NOT_MET_COMMAND.command(self, message, user_command_delta, level)
                 return
             command: Command = commands.get(command_name, INVALID_COMMAND)
 
@@ -157,7 +167,10 @@ class Twitchy:
         self._stats[user.name] = user
 
     def set_user_level(self, username: str, level: Level) -> None:
-        if self._stats[username].level != Level.MOD and self._stats[username].level != Level.OWNER:
+        if (
+            self._stats[username].level != Level.MOD
+            and self._stats[username].level != Level.OWNER
+        ):
             logging.info("Setting User: %s 's level to %s", username, level)
             self._stats[username].level = level
 
