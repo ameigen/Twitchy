@@ -9,7 +9,7 @@ from data_types.commands import (
     on_message,
     on_set_vips,
     on_set_mods,
-    on_roll, on_first_sighting, on_who_am_i, on_reroll_me,
+    on_roll, on_first_sighting, on_who_am_i, on_reroll_me, on_bonk, on_get_bonks,
 )
 
 INVALID_COMMAND: Command = Command("ERROR", '', on_invalid_command)
@@ -33,7 +33,13 @@ commands: Dict[str, Command] = {
                          on_who_am_i),
     "!reroll_me": Command("Rerolls your player stats. ONLY USUABLE ONCE A MONTH",
                           "!reroll_me",
-                          on_reroll_me)
+                          on_reroll_me),
+    "!bonk": Command("Bonks someone!",
+                     "!bonk [user]",
+                     on_bonk),
+    "!bonked?": Command("How many times have you been bonked?",
+                        "!bonked?",
+                        on_get_bonks)
 }
 
 mod_commands: Dict[str, Command] = {

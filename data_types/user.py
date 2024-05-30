@@ -23,6 +23,7 @@ class User:
     first_sighting: int = time.time()
     last_reroll: float = 0
     player_stats: PlayerStats = PlayerStats.new()
+    bonks: int = 0
 
     def to_dict(self) -> Dict:
         data: Dict = asdict(self)
@@ -39,5 +40,6 @@ class User:
             last_command=vals.get("last_command", time.time()),
             first_sighting=vals.get("first_sighting", time.time()),
             last_reroll=vals.get("last_reroll", 0),
-            player_stats=PlayerStats.from_dict(vals.get("player_stats", asdict(PlayerStats.new())))
+            player_stats=PlayerStats.from_dict(vals.get("player_stats", asdict(PlayerStats.new()))),
+            bonks=vals.get("bonks", 0)
         )

@@ -92,11 +92,16 @@ class PlayerStats:
     intelligence: int
     wisdom: int
     charisma: int
+    max_health: int
+    current_health: int
+    max_mana: int
+    current_mana: int
+    experience: int
 
     @classmethod
     def new(cls) -> "PlayerStats":
         species: Species = random.choice(list(Species))
-        return PlayerStats(
+        player: PlayerStats = PlayerStats(
             species,
             random.randint(8, 18) + SPECIES_LOOKUP[species][0],
             random.randint(8, 18) + SPECIES_LOOKUP[species][1],
@@ -104,12 +109,22 @@ class PlayerStats:
             random.randint(8, 18) + SPECIES_LOOKUP[species][3],
             random.randint(8, 18) + SPECIES_LOOKUP[species][4],
             random.randint(8, 18) + SPECIES_LOOKUP[species][5],
+            0,
+            0,
+            0,
+            0,
+            0
         )
+        player.max_health = 10 + player.constitution
+        player.max_mana = 10 + player.intelligence
+        player.current_health = player.max_health
+        player.current_mana = player.max_mana
+        return player
 
     @classmethod
     def from_dict(cls, val: Dict[str, int]) -> "PlayerStats":
         species: Species = random.choice(list(Species))
-        return PlayerStats(
+        player: PlayerStats = PlayerStats(
             race=val.get("race", species),
             strength=val.get("strength", random.randint(8, 18) + SPECIES_LOOKUP[species][0]),
             dexterity=val.get("dexterity", random.randint(8, 18) + SPECIES_LOOKUP[species][1]),
@@ -117,10 +132,23 @@ class PlayerStats:
             intelligence=val.get("intelligence", random.randint(8, 18) + SPECIES_LOOKUP[species][3]),
             wisdom=val.get("wisdom", random.randint(8, 18) + SPECIES_LOOKUP[species][4]),
             charisma=val.get("charisma", random.randint(8, 18) + SPECIES_LOOKUP[species][5]),
+            max_health=0,
+            max_mana=0,
+            current_mana=0,
+            current_health=0,
+            experience=val.get("experience", 0)
         )
+        player.max_health = val.get("max_health", 10 + player.constitution)
+        player.max_mana = val.get("max_mana", 10 + player.intelligence)
+        player.current_health = val.get("current_health", player.max_health)
+        player.current_mana = val.get("current_mana", player.max_mana)
+        return player
 
     def pretty(self) -> str:
         return f"Race:{self.race.title()} " \
+               f"Health:{self.current_health}/{self.max_health} " \
+               f"Mana:{self.current_mana}/{self.max_mana} " \
+               f"Experience:{self.experience} " \
                f"STR:{self.strength} " \
                f"DEX:{self.dexterity} " \
                f"CON:{self.constitution} " \

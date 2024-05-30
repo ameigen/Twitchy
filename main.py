@@ -49,7 +49,7 @@ def main():
         client_secret,
     )
 
-    logger.info("Twitchy initialized")
+    logger.info("Twitchy initialized %s", bot)
 
 
 if __name__ == "__main__":

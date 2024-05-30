@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from bot.bot import Twitchy, VIP_COMMAND_DELAY, COMMAND_DELAY
 
@@ -124,6 +123,20 @@ def on_reroll_me(bot: Twitchy, message: twitch.chat.Message, *_, **__) -> None:
     else:
         bot.send(
             f"@{message.user.display_name} you can't reroll your character yet! You have to wait {_seconds_to_dhms(REROLL_DELAY - delta)}")
+
+
+def on_bonk(bot: Twitchy, message: twitch.chat.Message, target: List[str], *_, **__) -> None:
+    target: str = target[0]
+    if target in bot.stats:
+        bot.stats[target].bonks += 1
+        bot.send(f"@{target} 🔨 was bonked by {message.user.display_name}!")
+    else:
+        bot.send(
+            f"Sorry {message.user.display_name} @{target} either doesn't exist or hasn't chatted...they should fix that.")
+
+
+def on_get_bonks(bot: Twitchy, message: twitch.chat.Message, *_, **__) -> None:
+    bot.send(f"@{message.user.display_name} has been bonked 🔨{bot.stats[message.user.display_name].bonks}🔨 times!")
 
 
 def _roll_dice(sides: int, number: int) -> str:

@@ -24,3 +24,11 @@
 **Description:** Rerolls your player stats. ONLY USUABLE ONCE A MONTH
 **Usage:** `!reroll_me`
 
+## !bonk
+**Description:** Bonks someone!
+**Usage:** `!bonk [user]`
+
+## !bonked?
+**Description:** How many times have you been bonked?
+**Usage:** `!bonked?`
+
