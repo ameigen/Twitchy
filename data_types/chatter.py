@@ -16,13 +16,17 @@ class Chatter:
     seen: float
 
     @classmethod
-    def from_data(cls, val: Dict):
+    def from_data(cls, val: Dict[str, str]):
         """
         Creates a Chatter object from a provided Dict, defaults to unique unknown
         otherwise
         Args:
-            val: Dict containing chatter information
-
+            val: Dict[str, str] containing chatter information
+                {
+                  "user_id": "128393656",
+                  "user_login": "smittysmithers",
+                  "user_name": "smittysmithers"
+                }
         Returns:
             Chatter
         """
