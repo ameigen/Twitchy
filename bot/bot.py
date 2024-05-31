@@ -18,6 +18,7 @@ from bot.commands import (
 )
 from data_types import PlayerStats
 from data_types import User
+from data_types.chatter import Chatter
 from data_types.commands import (
     Command,
 )
@@ -53,6 +54,7 @@ class Twitchy:
                 client_id=client_id,
                 client_secret=client_secret,
                 use_cache=True,
+                bearer_token=oauth,
                 cache_duration=timedelta(minutes=30),
             ),
         )
@@ -60,16 +62,21 @@ class Twitchy:
         self._stats: Dict[str, User] = {}
         self._bot.subscribe(self._handle_message)
         self._queue: Dict[str, Union[BotEvent, PollBotEvent]] = {}
+        self._current_chatters: List[Chatter] = []
 
         self._file_writer: Thread = Thread(target=self._file_write_loop)
         self._watch_thread: Thread = Thread(target=self._monitor_loop)
+        self._chatter_thread: Thread = Thread(target=self._monitor_chatters)
         self._file_mutex: Lock = Lock()
         self._queue_mutex: Lock = Lock()
+        self._chatters_mutex: Lock = Lock()
+
         self._end_event: Event = Event()
 
         self._load_stats()
         self._file_writer.start()
         self._watch_thread.start()
+        self._chatter_thread.start()
 
     @property
     def stats(self) -> Dict[str, User]:
@@ -79,6 +86,24 @@ class Twitchy:
             Dict[str, User]
         """
         return self._stats
+
+    @property
+    def chatters(self) -> List[Chatter]:
+        """
+        Gets the current chatters
+        Returns:
+            List[Chatter]
+        """
+        return self._current_chatters
+
+    @property
+    def chatters_mutex(self) -> Lock:
+        """
+        Gets the current chatters mutex
+        Returns:
+            Lock
+        """
+        return self._chatters_mutex
 
     def _handle_message(self, message: twitch.chat.Message) -> None:
         """
@@ -212,6 +237,18 @@ class Twitchy:
                         to_clear.append(name)
                 [self._queue.pop(name) for name in to_clear].clear()
 
+    def _monitor_chatters(self) -> None:
+        """
+        Function to monitor currently active chatters.
+        Returns:
+            None
+        """
+        while not self._end_event.is_set():
+            logging.info("Updating current chatters...")
+            with self._chatters_mutex:
+                self._get_chatters()
+            time.sleep(30)
+
     def _load_stats(self) -> None:
         """
         Opens 'stats,json' and loads user statistics data
@@ -230,6 +267,17 @@ class Twitchy:
                 stats[key] = User.from_dict(key, value)
 
         self._stats = stats
+
+    def _get_chatters(self) -> None:
+        data: Dict = self._bot.helix.api.get(
+            "/chat/chatters",
+            params={
+                "broadcaster_id": self._bot.helix.user(self._owner).id,
+                "moderator_id": self._bot.helix.user(self._owner).id,
+            },
+        )
+        self._current_chatters = [Chatter.from_data(user) for user in data["data"]]
+        logging.info("Current chatters: %s", self._current_chatters)
 
     def add_user(self, user: User) -> None:
         """

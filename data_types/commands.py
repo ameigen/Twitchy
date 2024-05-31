@@ -16,7 +16,7 @@ from .user import Level
 from .user import User
 
 if TYPE_CHECKING:
-    from bot.bot import Twitchy, VIP_COMMAND_DELAY, COMMAND_DELAY
+    from bot.bot import Twitchy
 
 
 @dataclass
@@ -93,12 +93,12 @@ def on_delay_not_met(
         message.chat.send(
             f"@{message.user.display_name} we know you're important but you"
             f" cannot use a command again that soon!"
-            f"Wait {int(VIP_COMMAND_DELAY - user_command_delta)} seconds"
+            f"Wait {int(User.VIP_COMMAND_DELAY - user_command_delta)} seconds"
         )
     else:
         message.chat.send(
             f"@{message.user.display_name} you cannot use a command again that soon!"
-            f"Wait {int(COMMAND_DELAY - user_command_delta)} seconds"
+            f"Wait {int(User.COMMAND_DELAY - user_command_delta)} seconds"
         )
 
 

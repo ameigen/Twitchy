@@ -39,6 +39,7 @@ class User:
     last_reroll: float = 0
     player_stats: PlayerStats = PlayerStats.new()
     bonks: int = 0
+    points: int = 0
 
     def to_dict(self) -> Dict:
         """
@@ -73,4 +74,5 @@ class User:
                 vals.get("player_stats", asdict(PlayerStats.new()))
             ),
             bonks=vals.get("bonks", 0),
+            points=vals.get("points", 0),
         )
