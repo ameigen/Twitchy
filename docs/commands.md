@@ -36,6 +36,10 @@
 **Description:** How many times have you been hugged?
 **Usage:** `!hugged?`
 
+## !points?
+**Description:** How many points do you have?
+**Usage:** `!points?`
+
 ## !vote
 **Description:** Votes for a poll choice!
 **Usage:** `!vote [choice]`

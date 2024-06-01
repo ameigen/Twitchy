@@ -119,8 +119,9 @@ class OnGetCountCommand(Command, ABC):
     Class representing an Abstract Command that gets a count for a user.
     """
 
-    FORMAT: str = "@{user} {description} {count} times!"
+    FORMAT: str = "@{user} {description} {count} {post}"
     DESCRIPTION: str = ""
+    POST: str = "times!"
 
     @abstractmethod
     def _get(self, bot: Twitchy, user: str) -> Any:
@@ -149,6 +150,7 @@ class OnGetCountCommand(Command, ABC):
                 user=message.user.display_name,
                 description=self.DESCRIPTION,
                 count=self._get(bot, message.user.display_name),
+                post=self.POST,
             )
         )
 
@@ -437,7 +439,6 @@ class OnHugCommand(OnTargetCommand):
     """
 
     VERB: str = "hugged"
-    KEY: str = "hugs"
 
     def _increment(self, bot: Twitchy, target: str) -> None:
         bot.stats[target].hugs += 1
@@ -449,10 +450,21 @@ class OnGetHugsCommand(OnGetCountCommand):
     """
 
     DESCRIPTION: str = "has been ❤hugged❤"
-    KEY: str = "hugs"
 
     def _get(self, bot: Twitchy, user: str) -> int:
         return bot.stats[user].hugs
+
+
+class OnGetPointsCommand(OnGetCountCommand):
+    """
+    Class representing a Command that gets a user's number of points.
+    """
+
+    DESCRIPTION: str = "has"
+    POST: str = "points!"
+
+    def _get(self, bot: Twitchy, user: str) -> Any:
+        return bot.stats[user].points
 
 
 class OnCreatePollCommand(Command):
