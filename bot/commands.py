@@ -3,71 +3,64 @@ from typing import Dict
 
 from data_types.commands import (
     Command,
-    on_delay_not_met,
-    on_invalid_command,
-    on_help_command,
-    on_message,
-    on_set_vips,
-    on_set_mods,
-    on_roll,
-    on_first_sighting,
-    on_who_am_i,
-    on_reroll_me,
-    on_bonk,
-    on_get_bonks,
-    on_create_poll,
-    on_vote,
-    on_current_poll,
+    OnInvalidCommand,
+    OnDelayNotMetCommand,
+    OnWhoAmICommand,
+    OnRerollMeCommand,
+    OnMessagesCommand,
+    OnRollCommand,
+    OnVoteCommand,
+    OnHelpCommand,
+    OnBonkCommand,
+    OnGetBonksCommand,
+    OnFirstSightingCommand,
+    OnCreatePollCommand,
+    OnSetVipsCommand,
+    OnSetModsCommand,
+    OnGetCurrentPoll,
 )
 
-INVALID_COMMAND: Command = Command("ERROR", "", on_invalid_command)
-DELAY_NOT_MET_COMMAND: Command = Command("ERROR", "", on_delay_not_met)
-HELP_COMMAND: Command = Command("HELP", "", on_help_command)
+INVALID_COMMAND: Command = OnInvalidCommand("ERROR", "")
+DELAY_NOT_MET_COMMAND: Command = OnDelayNotMetCommand("ERROR", "")
+HELP_COMMAND: Command = OnHelpCommand("HELP", "")
 
 commands: Dict[str, Command] = {
-    "!messages": Command(
-        "Returns how many messages a user has sent", "!messages", on_message
+    "!messages": OnMessagesCommand(
+        "Returns how many messages a user has sent", "!messages"
     ),
-    "!roll": Command("Rolls a die of format #dSides,", "!roll 2d20", on_roll),
-    "!first_sighting": Command(
+    "!roll": OnRollCommand("Rolls a die of format #dSides,", "!roll 2d20"),
+    "!first_sighting": OnFirstSightingCommand(
         "Gives the delta from the first time you were seen in chat",
         "!first_sighting",
-        on_first_sighting,
     ),
-    "!who_am_i": Command("Prints out the user's stat sheet.", "!who_am_i", on_who_am_i),
-    "!reroll_me": Command(
+    "!who_am_i": OnWhoAmICommand("Prints out the user's stat sheet.", "!who_am_i"),
+    "!reroll_me": OnRerollMeCommand(
         "Rerolls your player stats. ONLY USUABLE ONCE A MONTH",
         "!reroll_me",
-        on_reroll_me,
     ),
-    "!bonk": Command("Bonks someone!", "!bonk [user]", on_bonk),
-    "!bonked?": Command(
-        "How many times have you been bonked?", "!bonked?", on_get_bonks
-    ),
-    "!vote": Command("Votes for a poll choice!", "!vote [choice]", on_vote),
-    "!current_poll": Command(
-        "Gets the current poll information!", "!current_poll", on_current_poll
+    "!bonk": OnBonkCommand("Bonks someone!", "!bonk [user]"),
+    "!bonked?": OnGetBonksCommand("How many times have you been bonked?", "!bonked?"),
+    "!vote": OnVoteCommand("Votes for a poll choice!", "!vote [choice]"),
+    "!current_poll": OnGetCurrentPoll(
+        "Gets the current poll information!", "!current_poll"
     ),
 }
 
 mod_commands: Dict[str, Command] = {
-    "!set_vips": Command(
+    "!set_vips": OnSetVipsCommand(
         "Sets user level to VIP.",
         "!set_vips [username1] [username2] ...",
-        on_set_vips,
     ),
-    "!start_poll": Command(
+    "!start_poll": OnCreatePollCommand(
         "Starts a new poll",
         "!start_poll [This_is_a_title] [choice1] [choice2] [choice3] ... [duration]",
-        on_create_poll,
     ),
 }
 
 owner_commands: Dict[str, Command] = {
-    "!set_mods": Command(
+    "!set_mods": OnSetModsCommand(
         "Sets bot mod level for all provided users.",
         "!set_mods [username1] [username2] ...",
-        on_set_mods,
     )
 }
 

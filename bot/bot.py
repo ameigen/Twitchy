@@ -116,7 +116,7 @@ class Twitchy:
             None
         """
         username: str = message.user.display_name
-
+        logging.info("Received message: %s", message.text)
         if username not in self._stats:
             self.add_user(User(username))
 
@@ -162,15 +162,13 @@ class Twitchy:
                 and HELP_COMMAND.description
                 in split_command[SPLIT_COMMAND_ARGS].upper()
             ):
-                HELP_COMMAND.command(
+                HELP_COMMAND(
                     self,
                     message,
                     command_to_execute,
                 )
             else:
-                command_to_execute.command(
-                    self, message, split_command[SPLIT_COMMAND_ARGS:]
-                )
+                command_to_execute(self, message, *split_command[SPLIT_COMMAND_ARGS:])
 
         if level == Level.OWNER:
             command: Command = owner_commands.get(command_name, INVALID_COMMAND)
@@ -181,10 +179,9 @@ class Twitchy:
                 User.VIP_COMMAND_DELAY if level == Level.VIP else User.COMMAND_DELAY
             )
             if user_command_delta <= delay:
-                DELAY_NOT_MET_COMMAND.command(self, message, user_command_delta, level)
+                DELAY_NOT_MET_COMMAND(self, message, user_command_delta, level)
                 return
             command: Command = commands.get(command_name, INVALID_COMMAND)
-
         execute_command(command)
 
     def _update_user(self, user: User) -> None:
