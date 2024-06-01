@@ -56,3 +56,7 @@
 **Description:** Gets the current poll information!
 **Usage:** `!current_poll`
 
+## !commands
+**Description:** Returns a link to the current user command sheet!
+**Usage:** `!commands`
+

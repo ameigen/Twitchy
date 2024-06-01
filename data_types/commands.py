@@ -552,6 +552,32 @@ class OnGetCurrentPoll(Command):
             poll_event.current_status()
 
 
+class OnGetCommands(Command):
+    """
+    Class representing a Command tha returns the current commands available to users
+
+    TODO Should return a list instead of a link-- come up with a good way to do this
+    """
+
+    def execute(self, bot: Twitchy, message: twitch.chat.Message) -> None:
+        """
+        Executes the get commands response.
+
+        Args:
+            bot (Twitchy): Twitchy bot instance
+            message (twitch.chat.Mesasage): Message received as part of the command
+
+        Returns:
+            None
+        """
+        bot.send(
+            f"@{message.user.display_name} you can find all "
+            f"supported commands at: "
+            f"https://github.com/ameigen/Twitchy/blob/main/docs/commands.md "
+            f"( as well as my source code...)"
+        )
+
+
 def _roll_dice(sides: int, number: int) -> str:
     """
     Rolls a specified number of dice with a specified number of sides.

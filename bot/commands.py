@@ -21,6 +21,7 @@ from data_types.commands import (
     OnHugCommand,
     OnGetHugsCommand,
     OnGetPointsCommand,
+    OnGetCommands,
 )
 
 INVALID_COMMAND: Command = OnInvalidCommand("ERROR", "")
@@ -49,6 +50,9 @@ commands: Dict[str, Command] = {
     "!vote": OnVoteCommand("Votes for a poll choice!", "!vote [choice]"),
     "!current_poll": OnGetCurrentPoll(
         "Gets the current poll information!", "!current_poll"
+    ),
+    "!commands": OnGetCommands(
+        "Returns a link to the current user command sheet!", "!commands"
     ),
 }
 
