@@ -28,6 +28,14 @@
 **Description:** How many times have you been bonked?
 **Usage:** `!bonked?`
 
+## !hug
+**Description:** Hugs someone!
+**Usage:** `!hug [user]`
+
+## !hugged?
+**Description:** How many times have you been hugged?
+**Usage:** `!hugged?`
+
 ## !vote
 **Description:** Votes for a poll choice!
 **Usage:** `!vote [choice]`

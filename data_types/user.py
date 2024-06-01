@@ -39,9 +39,10 @@ class User:
     last_reroll: float = 0
     player_stats: PlayerStats = PlayerStats.new()
     bonks: int = 0
+    hugs: int = 0
     points: int = 0
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Dict]:
         """
         Serializes the User into a dictionary
         Returns:
@@ -70,6 +71,7 @@ class User:
             messages_sent=vals.get("messages_sent", 0),
             first_sighting=vals.get("first_sighting", time.time()),
             last_reroll=vals.get("last_reroll", 0),
+            hugs=vals.get("hugs", 0),
             player_stats=PlayerStats.from_dict(
                 vals.get("player_stats", asdict(PlayerStats.new()))
             ),

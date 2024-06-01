@@ -274,7 +274,7 @@ class Twitchy:
             },
         )
         self._current_chatters = [Chatter.from_data(user) for user in data["data"]]
-        logging.info("Current chatters: %s", self._current_chatters)
+        logging.debug("Current chatters: %s", self._current_chatters)
 
     def add_user(self, user: User) -> None:
         """
@@ -324,7 +324,7 @@ class Twitchy:
         Returns:
             None
         """
-        logging.info("Sending message: %s", message)
+        logging.debug("Sending message: %s", message)
         self._bot.send(message)
 
     def add_poll(self, event: PollBotEvent) -> None:
@@ -383,3 +383,17 @@ class Twitchy:
 
         """
         return self._queue.get("current_poll")
+
+    def update_user(self, user: User) -> None:
+        """
+        Updates a user in the stats Dict
+        Args:
+            user (User): to be updated
+
+        Returns:
+            None
+        """
+        logging.debug("Updating %s", user.name)
+        print("pre", self._stats[user.name])
+        self._stats.update({user.name: user})
+        print("post", self._stats[user.name])

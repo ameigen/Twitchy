@@ -18,6 +18,8 @@ from data_types.commands import (
     OnSetVipsCommand,
     OnSetModsCommand,
     OnGetCurrentPoll,
+    OnHugCommand,
+    OnGetHugsCommand,
 )
 
 INVALID_COMMAND: Command = OnInvalidCommand("ERROR", "")
@@ -40,6 +42,8 @@ commands: Dict[str, Command] = {
     ),
     "!bonk": OnBonkCommand("Bonks someone!", "!bonk [user]"),
     "!bonked?": OnGetBonksCommand("How many times have you been bonked?", "!bonked?"),
+    "!hug": OnHugCommand("Hugs someone!", "!hug [user]"),
+    "!hugged?": OnGetHugsCommand("How many times have you been hugged?", "!hugged?"),
     "!vote": OnVoteCommand("Votes for a poll choice!", "!vote [choice]"),
     "!current_poll": OnGetCurrentPoll(
         "Gets the current poll information!", "!current_poll"

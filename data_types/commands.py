@@ -68,6 +68,91 @@ class Command(ABC):
         """
 
 
+class OnTargetCommand(Command, ABC):
+    """
+    Class representing an Abstract Command that targets a user to increment some value.
+    """
+
+    FORMAT: str = "@{target} was {verb} by @{user}!"
+    VERB: str = ""
+
+    @abstractmethod
+    def _increment(self, bot: Twitchy, target: str) -> None:
+        """
+        Increment some value on the user
+        Args:
+            bot (Twitchy): Twitch bot instance
+            target (str): Name of user to be incremented
+        Returns:
+            None
+        """
+
+    def execute(
+        self, bot: Twitchy, message: twitch.chat.Message, target: str = ""
+    ) -> None:
+        """
+        Executes the target command
+        Args:
+            bot (Twitchy): Twitchy bot instance
+            message (twitch.chat.Message): Message received as part of the command
+            target (str): user to target
+
+        Returns:
+            None
+        """
+        if target in bot.stats:
+            self._increment(bot, target)
+            bot.send(
+                self.FORMAT.format(
+                    target=target, user=message.user.display_name, verb=self.VERB
+                )
+            )
+        else:
+            bot.send(
+                f"Sorry {message.user.display_name} @{target} either doesn't exist "
+                f"or hasn't chatted...they should fix that."
+            )
+
+
+class OnGetCountCommand(Command, ABC):
+    """
+    Class representing an Abstract Command that gets a count for a user.
+    """
+
+    FORMAT: str = "@{user} {description} {count} times!"
+    DESCRIPTION: str = ""
+
+    @abstractmethod
+    def _get(self, bot: Twitchy, user: str) -> Any:
+        """
+        Gets a value from the User
+        Args:
+            bot (Twitchy): Twitchy bot instance
+            user (str): Invoker
+        Returns:
+            Any
+        """
+
+    def execute(self, bot: Twitchy, message: twitch.chat.Message) -> None:
+        """
+        Executes the get command response.
+
+        Args:
+            bot (Twitchy): Twitchy bot instance.
+            message (twitch.chat.Message): Message received as part of the command.
+
+        Returns:
+            None
+        """
+        bot.send(
+            self.FORMAT.format(
+                user=message.user.display_name,
+                description=self.DESCRIPTION,
+                count=self._get(bot, message.user.display_name),
+            )
+        )
+
+
 class OnInvalidCommand(Command):
     """
     Class representing a default Command for if a non-supported Command is called
@@ -323,55 +408,51 @@ class OnRerollMeCommand(Command):
             )
 
 
-class OnBonkCommand(Command):
+class OnBonkCommand(OnTargetCommand):
     """
     Class representing a Command that 'bonks' a target user
     """
 
-    def execute(
-        self, bot: Twitchy, message: twitch.chat.Message, target: str = ""
-    ) -> None:
-        """
-        Executes the bonk command response.
+    VERB: str = "bonked"
 
-        Args:
-            bot (Twitchy): Twitchy bot instance.
-            message (twitch.chat.Message): Message received as part of the command.
-            target (str, optional): Target user to bonk.
-
-        Returns:
-            None
-        """
-        if target in bot.stats:
-            bot.stats[target].bonks += 1
-            bot.send(f"@{target} 🔨 was bonked by {message.user.display_name}!")
-        else:
-            bot.send(
-                f"Sorry {message.user.display_name} @{target} either doesn't exist "
-                f"or hasn't chatted...they should fix that."
-            )
+    def _increment(self, bot: Twitchy, target: str) -> None:
+        bot.stats[target].bonks += 1
 
 
-class OnGetBonksCommand(Command):
+class OnGetBonksCommand(OnGetCountCommand):
     """
-    Class representing a Command that gets a users's number of times bonked.
+    Class representing a Command that gets a user's number of times bonked.
     """
 
-    def execute(self, bot: Twitchy, message: twitch.chat.Message) -> None:
-        """
-        Executes the get bonks command response.
+    DESCRIPTION: str = "has been 🔨bonked🔨"
+    KEY: str = "bonks"
 
-        Args:
-            bot (Twitchy): Twitchy bot instance.
-            message (twitch.chat.Message): Message received as part of the command.
+    def _get(self, bot: Twitchy, user: str) -> int:
+        return bot.stats[user].bonks
 
-        Returns:
-            None
-        """
-        bot.send(
-            f"@{message.user.display_name} has been bonked "
-            f"🔨{bot.stats[message.user.display_name].bonks}🔨 times!"
-        )
+
+class OnHugCommand(OnTargetCommand):
+    """
+    Class representing a Command that 'hugs' a target user
+    """
+
+    VERB: str = "hugged"
+    KEY: str = "hugs"
+
+    def _increment(self, bot: Twitchy, target: str) -> None:
+        bot.stats[target].hugs += 1
+
+
+class OnGetHugsCommand(OnGetCountCommand):
+    """
+    Class representing a Command that gets a user's number of times hugged.
+    """
+
+    DESCRIPTION: str = "has been ❤hugged❤"
+    KEY: str = "hugs"
+
+    def _get(self, bot: Twitchy, user: str) -> int:
+        return bot.stats[user].hugs
 
 
 class OnCreatePollCommand(Command):
