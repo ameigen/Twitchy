@@ -49,6 +49,6 @@
 **Usage:** `!current_poll`
 
 ## !commands
-**Description:** Returns a link to the current user command sheet!
+**Description:** Returns a link to the current user command sheet!Try using ![command] help for more info
 **Usage:** `!commands`
 

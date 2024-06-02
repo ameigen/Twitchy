@@ -17,6 +17,16 @@ from util.constants import TOKENS_PATH
 def _get_new_refresh_token(
     client_id: str, client_secret: str, refresh_token: str
 ) -> str:
+    """
+    # TODO Figure out why this doesn't properly refresh the tokens
+    Args:
+        client_id:
+        client_secret:
+        refresh_token:
+
+    Returns:
+
+    """
     try:
         headers: Dict[str, str] = {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -119,7 +129,7 @@ def boot() -> None:
             raise ValueError(
                 "TWITCH_BOT environment variable must contain 7 comma-separated values"
             )
-
+        #
         (
             username,
             channel,

@@ -226,11 +226,11 @@ class PlayerStats:
             f"CON:{self.constitution} "
             f"INT:{self.intelligence} "
             f"WIS:{self.wisdom} "
-            f"CHA:{self.charisma}"
-            f"Weapon:{self.weapon}"
-            f"Spell:{self.spell}"
-            f"Armor:{self.armor}"
-            f"Accessory:{self.accessories}"
+            f"CHA:{self.charisma} "
+            f"Weapon:{self.weapon} "
+            f"Spell:{self.spell} "
+            f"Armor:{self.armor} "
+            f"Accessory:{self.accessories} "
         )
 
     def get_adjusted_stats(self) -> "PlayerStats":

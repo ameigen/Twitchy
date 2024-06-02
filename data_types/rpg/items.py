@@ -26,6 +26,9 @@ class AttackItem(ABC):
     stat: str = "Strength"
     description: str = "WHAM!"
 
+    def __str__(self) -> str:
+        return f"{self.name} - {self.damage} - {self.stat} - {self.description}"
+
     @classmethod
     def from_dict(cls, val: Dict[str, Any]) -> "AttackItem":
         """
@@ -65,6 +68,9 @@ class StatItem(ABC):
     name: str = "None"
     stats: Tuple[int, int, int, int, int, int] = (0, 0, 0, 0, 0, 0)
     armor: int = 0
+
+    def __str__(self) -> str:
+        return f"{self.name} - {self.stats} - {self.armor}"
 
     @classmethod
     def from_dict(cls, val: Dict[str, Any]) -> "StatItem":

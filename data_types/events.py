@@ -13,10 +13,11 @@ class BotEvent(ABC):
     Abstract base class for Events to be handled by the Twitchy bot
     """
 
-    def __init__(self, bot: Twitchy, timeout: float = 0):
+    def __init__(self, bot: Twitchy, timeout: float = 0, one_shot: bool = True):
         self._bot: Twitchy = bot
         self._timeout: float = timeout
         self._spawn_time: float = time.time()
+        self._one_shot: bool = one_shot
 
     def timed_out(self) -> bool:
         """
@@ -36,6 +37,36 @@ class BotEvent(ABC):
 
         """
         raise NotImplementedError
+
+
+class BroadcastBotEvent(BotEvent):
+    """
+    BotEvent for handling BroadcastEvents
+    """
+
+    def __init__(
+        self,
+        bot: Twitchy,
+        message: str,
+        timeout: int = 60,
+        one_shot: bool = False,
+        repeats: int = 1,
+    ) -> None:
+        super().__init__(bot, timeout, one_shot)
+        self._message: str = message
+        self._repeats: int = repeats
+        self._iterations: int = 0
+
+    def finish(self) -> Optional["BroadcastBotEvent"]:
+        if self.timed_out():
+            self._iterations += 1 if not self._one_shot else 0
+            self._bot.send(f"Broadcast Message: {self._message}")
+            self._spawn_time = time.time() if not self._one_shot else 0
+            if self._one_shot:
+                return self
+            if not self._one_shot and self._iterations >= self._repeats:
+                return self
+        return None
 
 
 class PollBotEvent(BotEvent):
@@ -97,5 +128,6 @@ class PollBotEvent(BotEvent):
             )
             for user in self._bot.stats.values():
                 user.last_vote = 0
-            return self
+            self._spawn_time = time.time() if not self._one_shot else 0
+            return self if self._one_shot else None
         return None

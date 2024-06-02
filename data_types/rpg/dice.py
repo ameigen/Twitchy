@@ -13,6 +13,9 @@ class Dice:
     sides: int
     count: int
 
+    def __str__(self) -> str:
+        return f"{self.count}d{self.sides}"
+
     def as_list(self) -> List[int]:
         """
         Returns the parameters of the dice as a list

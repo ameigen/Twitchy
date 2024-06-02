@@ -22,6 +22,7 @@ from data_types.commands import (
     OnGetHugsCommand,
     OnGetPointsCommand,
     OnGetCommands,
+    OnSetBroadcastCommand,
 )
 
 INVALID_COMMAND: Command = OnInvalidCommand("ERROR", "")
@@ -52,25 +53,31 @@ commands: Dict[str, Command] = {
         "Gets the current poll information!", "!current_poll"
     ),
     "!commands": OnGetCommands(
-        "Returns a link to the current user command sheet!", "!commands"
+        "Returns a link to the current user command sheet!"
+        "Try using ![command] help for more info",
+        "!commands",
     ),
 }
 
 mod_commands: Dict[str, Command] = {
     "!set_vips": OnSetVipsCommand(
         "Sets user level to VIP.",
-        "!set_vips [username1] [username2] ...",
+        "!set_vips [username1],[username2],[username3],...",
     ),
     "!start_poll": OnCreatePollCommand(
         "Starts a new poll",
-        "!start_poll [This_is_a_title] [choice1] [choice2] [choice3] ... [duration]",
+        "!start_poll [This_is_a_title] [choice1],[choice2],[choice3],... [duration]",
+    ),
+    "!start_broadcast": OnSetBroadcastCommand(
+        "Begins broadcasting a a message after a certain delay",
+        "!start_broadcast [message_goes_here] [delay] [repetitions]",
     ),
 }
 
 owner_commands: Dict[str, Command] = {
     "!set_mods": OnSetModsCommand(
         "Sets bot mod level for all provided users.",
-        "!set_mods [username1] [username2] ...",
+        "!set_mods [username1],[username2],...",
     )
 }
 

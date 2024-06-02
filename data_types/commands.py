@@ -6,12 +6,12 @@ import logging
 import random
 import time
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import twitch
 
 from data_types.rpg.meta_game import PlayerStats
-from .events import PollBotEvent
+from .events import PollBotEvent, BroadcastBotEvent
 from .user import Level
 from .user import User
 
@@ -134,7 +134,7 @@ class OnGetCountCommand(Command, ABC):
             Any
         """
 
-    def execute(self, bot: Twitchy, message: twitch.chat.Message) -> None:
+    def execute(self, bot: Twitchy, message: twitch.chat.Message, *_) -> None:
         """
         Executes the get command response.
 
@@ -160,7 +160,7 @@ class OnInvalidCommand(Command):
     Class representing a default Command for if a non-supported Command is called
     """
 
-    def execute(self, bot: Twitchy, message: twitch.chat.Message) -> None:
+    def execute(self, bot: Twitchy, message: twitch.chat.Message, *_) -> None:
         """
         Executes the invalid command response.
 
@@ -266,7 +266,9 @@ class OnSetVipsCommand(Command):
     Class representing a Command that sets a list of users to VIP status
     """
 
-    def execute(self, bot: Twitchy, message: twitch.chat.Message, *to_vip: Any) -> None:
+    def execute(
+        self, bot: Twitchy, message: twitch.chat.Message, to_vip: str = ""
+    ) -> None:
         """
         Executes the set VIPs command response.
 
@@ -278,7 +280,7 @@ class OnSetVipsCommand(Command):
         Returns:
             None
         """
-        _set_levels(bot, to_vip, Level.VIP)
+        _set_levels(bot, to_vip.split(","), Level.VIP)
 
 
 class OnSetModsCommand(Command):
@@ -286,7 +288,9 @@ class OnSetModsCommand(Command):
     Class representing a Command that sets a list of users to MOD staus
     """
 
-    def execute(self, bot: Twitchy, message: twitch.chat.Message, *to_mod: Any) -> None:
+    def execute(
+        self, bot: Twitchy, message: twitch.chat.Message, to_mod: str = ""
+    ) -> None:
         """
         Executes the set moderators command response.
 
@@ -298,8 +302,7 @@ class OnSetModsCommand(Command):
         Returns:
             None
         """
-        to_mod = [] if not to_mod else to_mod
-        _set_levels(bot, to_mod, Level.MOD)
+        _set_levels(bot, to_mod.split(","), Level.MOD)
 
 
 class OnRollCommand(Command):
@@ -476,32 +479,74 @@ class OnCreatePollCommand(Command):
     TITLE: int = 0
     DURATION: int = -1
 
-    def execute(self, bot: Twitchy, message: twitch.chat.Message, *args: Any) -> None:
+    def execute(
+        self,
+        bot: Twitchy,
+        message: twitch.chat.Message,
+        title: str = "",
+        choices: str = "",
+        duration: str = "",
+    ) -> None:
         """
         Executes the create poll command response.
 
         Args:
             bot (Twitchy): Twitchy bot instance.
             message (twitch.chat.Message): Message received as part of the command.
-            *args (Any): Poll title, options, and duration.
+            title (str): str title of the poll
+            choices (str): str ',' seperated choices for the poll
+            duration (str): str representing the poll duration in seconds
 
         Returns:
             None
         """
-        args = [] if not args else args
-        if len(args) >= 3:
-            try:
-                poll_name: str = args[self.TITLE].replace("_", " ").title()
-                poll_choices: List[str] = args[self.TITLE : self.DURATION]
-                poll_duration: int = int(args[self.DURATION])
-                poll: PollBotEvent = PollBotEvent(
-                    bot, poll_name, poll_choices, poll_duration
-                )
-                bot.add_poll(poll)
-            except IndexError as e:
-                logging.error("Error creating poll event %s", e)
-        else:
-            bot.send("You might want to try making that poll again...")
+        try:
+            poll_name: str = title.replace("_", " ").title()
+            poll_choices: List[str] = choices.split(",")
+            poll_duration: int = int(duration)
+            poll: PollBotEvent = PollBotEvent(
+                bot, poll_name, poll_choices, poll_duration
+            )
+            bot.add_poll(poll)
+        except IndexError as e:
+            logging.error("Error creating poll event %s", e)
+
+
+class OnSetBroadcastCommand(Command):
+    """
+    Class representing a Command that creates a BroadcastBotEvent
+    according to some message.
+    """
+
+    def execute(
+        self,
+        bot: Twitchy,
+        message: twitch.chat.Message,
+        broadcast_message: str = "",
+        rate: str = "",
+        repetitions: str = "0",
+    ) -> None:
+        """
+
+        Args:
+            bot:
+            message:
+            broadcast_message:
+            rate:
+            repetitions:
+
+        Returns:
+
+        """
+        try:
+            rate: int = int(rate)
+            repetitions: int = int(repetitions)
+            broadcast_event: BroadcastBotEvent = BroadcastBotEvent(
+                bot, broadcast_message, rate, bool(repetitions), repetitions
+            )
+            bot.add_event("current_broadcast", broadcast_event)
+        except TypeError as e:
+            logging.error("Error creating broadcast event: %s", e)
 
 
 class OnVoteCommand(Command):
@@ -526,7 +571,8 @@ class OnVoteCommand(Command):
         user: User = bot.stats.get(message.user.display_name)
         delta: float = time.time() - user.last_vote
         if delta > User.VOTE_DELAY:
-            bot.update_poll(choice)
+            bot.update_poll(user.name, choice)
+            bot.stats[message.user.display_name].last_vote = time.time()
         else:
             bot.send(f"@{message.user.display_name} you already voted!")
 
@@ -596,7 +642,7 @@ def _roll_dice(sides: int, number: int) -> str:
     return roll_string
 
 
-def _set_levels(bot: Twitchy, to_list: Tuple[str, ...], level: Level) -> None:
+def _set_levels(bot: Twitchy, to_list: List[str], level: Level) -> None:
     """
     Sets user levels for a list of users.
 
@@ -609,13 +655,14 @@ def _set_levels(bot: Twitchy, to_list: Tuple[str, ...], level: Level) -> None:
         None
     """
     for user in to_list:
-        if user not in bot.stats:
-            bot.add_user(User(name=user, level=level))
-        else:
-            bot.set_user_level(user, level)
-        bot.send(f"/{level.value} {user}")
-        bot.send(f"@{user}, you are recognized as a {level.value}!")
-        time.sleep(1)
+        if user in bot.chatters:
+            if user not in bot.stats:
+                bot.add_user(User(name=user, level=level))
+            else:
+                bot.set_user_level(user, level)
+            bot.send(f"/{level.value} {user}")
+            bot.send(f"@{user}, you are recognized as a {level.value}!")
+            time.sleep(1)
 
 
 def _seconds_to_dhms(elapsed: float) -> str:

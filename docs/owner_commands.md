@@ -2,15 +2,19 @@
 
 ## !set_mods
 **Description:** Sets bot mod level for all provided users.
-**Usage:** `!set_mods [username1] [username2] ...`
+**Usage:** `!set_mods [username1],[username2],...`
 
 ## !set_vips
 **Description:** Sets user level to VIP.
-**Usage:** `!set_vips [username1] [username2] ...`
+**Usage:** `!set_vips [username1],[username2],[username3],...`
 
 ## !start_poll
 **Description:** Starts a new poll
-**Usage:** `!start_poll [This_is_a_title] [choice1] [choice2] [choice3] ... [duration]`
+**Usage:** `!start_poll [This_is_a_title] [choice1],[choice2],[choice3],... [duration]`
+
+## !start_broadcast
+**Description:** Begins broadcasting a a message after a certain delay
+**Usage:** `!start_broadcast [message_goes_here] [delay] [repetitions]`
 
 ## !messages
 **Description:** Returns how many messages a user has sent
@@ -61,6 +65,6 @@
 **Usage:** `!current_poll`
 
 ## !commands
-**Description:** Returns a link to the current user command sheet!
+**Description:** Returns a link to the current user command sheet!Try using ![command] help for more info
 **Usage:** `!commands`
 

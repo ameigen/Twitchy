@@ -61,7 +61,8 @@ class Twitchy:
         self._owner: str = owner
         self._stats: Dict[str, User] = {}
         self._bot.subscribe(self._handle_message)
-        self._queue: Dict[str, Union[BotEvent, PollBotEvent]] = {}
+        self._bot_name: str = nickname
+        self._events: Dict[str, Union[BotEvent, PollBotEvent]] = {}
         self._current_chatters: List[Chatter] = []
 
         self._file_writer: Thread = Thread(target=self._file_write_loop)
@@ -157,18 +158,23 @@ class Twitchy:
         command_name: str = split_command[SPLIT_COMMAND_NAME]
 
         def execute_command(command_to_execute: Command) -> None:
-            if (
-                len(split_command) > 1
-                and HELP_COMMAND.description
-                in split_command[SPLIT_COMMAND_ARGS].upper()
-            ):
-                HELP_COMMAND(
-                    self,
-                    message,
-                    command_to_execute,
-                )
-            else:
-                command_to_execute(self, message, *split_command[SPLIT_COMMAND_ARGS:])
+            try:
+                if (
+                    len(split_command) > 1
+                    and HELP_COMMAND.description
+                    in split_command[SPLIT_COMMAND_ARGS].upper()
+                ):
+                    HELP_COMMAND(
+                        self,
+                        message,
+                        command_to_execute,
+                    )
+                else:
+                    command_to_execute(
+                        self, message, *split_command[SPLIT_COMMAND_ARGS:]
+                    )
+            except Exception as e:
+                logging.error("Error executing command: %s", e)
 
         if level == Level.OWNER:
             command: Command = owner_commands.get(command_name, INVALID_COMMAND)
@@ -228,11 +234,11 @@ class Twitchy:
             time.sleep(1)
             with self._queue_mutex:
                 to_clear: List[str] = []
-                for name, event in self._queue.items():
+                for name, event in self._events.items():
                     event: Optional[BotEvent] = event.finish()
                     if event:
                         to_clear.append(name)
-                [self._queue.pop(name) for name in to_clear].clear()
+                [self._events.pop(name) for name in to_clear].clear()
 
     def _monitor_chatters(self) -> None:
         """
@@ -241,10 +247,9 @@ class Twitchy:
             None
         """
         while not self._end_event.is_set():
-            logging.info("Updating current chatters...")
             with self._chatters_mutex:
                 self._get_chatters()
-            time.sleep(30)
+            time.sleep(5)
 
     def _load_stats(self) -> None:
         """
@@ -270,7 +275,7 @@ class Twitchy:
             "/chat/chatters",
             params={
                 "broadcaster_id": self._bot.helix.user(self._owner).id,
-                "moderator_id": self._bot.helix.user(self._owner).id,
+                "moderator_id": self._bot.helix.user(self._bot_name).id,
             },
         )
         self._current_chatters = [Chatter.from_data(user) for user in data["data"]]
@@ -345,33 +350,34 @@ class Twitchy:
         """
 
         Args:
-            name:
-            event:
-
+            name (str):
+            event (BotEvent):
         Returns:
 
         """
 
         with self._queue_mutex:
             try:
-                self._queue[name] = event
+                self._events[name] = event
                 return True
             except KeyError as e:
                 logging.error("Error inserting event: %s", e)
                 return False
 
-    def update_poll(self, choice: str) -> None:
+    def update_poll(self, user: str, choice: str) -> None:
         """
 
         Args:
-            choice:
+            user (str):
+            choice (str):
 
         Returns:
 
         """
         with self._queue_mutex:
             try:
-                self._queue["current_poll"].vote(choice)
+                self._events["current_poll"].vote(choice)
+                self.send(f"Thank you @{user} for voting for {choice}!")
             except KeyError as e:
                 self._bot.send(f"{choice} isn't in this poll...")
                 logging.error("Error getting current poll: %s", e)
@@ -382,7 +388,7 @@ class Twitchy:
         Returns:
 
         """
-        return self._queue.get("current_poll")
+        return self._events.get("current_poll")
 
     def update_user(self, user: User) -> None:
         """
